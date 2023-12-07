@@ -29,7 +29,7 @@
                 "description": "An attacker exploits a contract's logic to repeatedly call into a function before the previous invocation is complete, potentially draining funds.",
                 "data": [
                     {
-                        "id": "SOL-AM-RA-1",
+                        "id": "SOL-AM-ReentrancyAttack-1",
                         "question": "Is there any state change after interaction to an external contract?",
                         "description": "Untrusted external contract calls could callback leading to unexpected results such as multiple withdrawals or out-of-order events.",
                         "remediation": "Use check-effects-interactions pattern or reentrancy guards.",
@@ -43,7 +43,7 @@
                         ]
                     },
                     {
-                        "id": "SOL-AM-RA-2",
+                        "id": "SOL-AM-ReentrancyAttack-2",
                         "question": "Is there a view function that can return a stale value during interactions?",
                         "description": "Read-only reentrancy. The read-only reentrancy is a reentrancy scenario where a view function is reentered, which in most cases is unguarded as it does not modify the contract's state. However, if the state is inconsistent, wrong values could be reported. Other protocols relying on a return value can be tricked into reading the wrong state to perform unwanted actions.",
                         "remediation": "Extend the reentrancy guard to the view functions as well.",
@@ -130,7 +130,7 @@
                 "description": "Attackers resend or duplicate valid data/signature transmissions to deceive or impersonate another entity.",
                 "data": [
                     {
-                        "id": "SOL-AM-RA-1",
+                        "id": "SOL-AM-ReplayAttack-1",
                         "question": "Are there protections against replay attacks for failed transactions?",
                         "description": "Failed transactions can be susceptible to replay attacks if not properly protected.",
                         "remediation": "Implement nonce-based or other mechanisms to ensure that each transaction can only be executed once, preventing replay attacks.",
@@ -140,7 +140,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-AM-RA-2",
+                        "id": "SOL-AM-ReplayAttack-2",
                         "question": "Is there protection against replaying signatures on different chains?",
                         "description": "Signatures valid on one chain may be replayed on another, leading to potential security breaches.",
                         "remediation": "Use chain-specific parameters or domain separators to ensure signatures are only valid on the intended chain.",
@@ -179,7 +179,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-AM-FrA-2",
+                        "id": "SOL-AM-FrA-4",
                         "question": "Are two-transaction actions designed to be safe from frontrunning?",
                         "description": "Actions that require two separate transactions may be at risk of frontrunning, where an attacker can intervene between the two calls.",
                         "remediation": "Ensure critical actions that are split across multiple transactions cannot be interfered with by attackers. This can involve checks or locks between the transactions.",
@@ -189,7 +189,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-AM-FrA-3",
+                        "id": "SOL-AM-FrA-2",
                         "question": "Can users maliciously cause others' transactions to revert by preempting with dust?",
                         "description": "Attackers may cause legitimate transactions to fail by front-running with transactions of negligible amounts.",
                         "remediation": "Implement checks to prevent transactions with non-material amounts from affecting the contract's state or execution flow.",
@@ -199,7 +199,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-AM-FrA-4",
+                        "id": "SOL-AM-FrA-3",
                         "question": "Does the protocol need a commit-reveal scheme?",
                         "description": "Without a commit-reveal scheme, actions such as votes or bids are exposed in the mempool before they are mined, allowing adversaries to see and potentially act on this information. The commit-reveal pattern maintains confidentiality until all commitments are made.",
                         "remediation": "Implement a commit-reveal scheme where users first commit a hash of their intended action and then reveal the actual action after the commitment phase is over. This protects against front-running and provides a fairer process.",
@@ -228,7 +228,7 @@
                         "description": "Vulnerabilities related to specific Solidity versions.",
                         "data": [
                             {
-                                "id": "SOL-Basics-VI-SVI-48",
+                                "id": "SOL-Basics-VI-SVI-1",
                                 "question": "Does the contract use `abi.encodePacked`, especially in hash generation? (version >= 0.8.17)",
                                 "description": "If you use `keccak256(abi.encodePacked(a, b))` and both `a` and `b` are dynamic types, it is easy to craft collisions in the hash value by moving parts of `a` into `b` and vice-versa. More specifically, `abi.encodePacked(\\'a\\', \\'bc\\') == abi.encodePacked(\\'ab\\', \\'c\\').",
                                 "remediation": "Use `abi.encode` instead of `abi.encodePacked`.",
@@ -239,27 +239,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-3",
-                                "question": "Is there any inconsistence (`memory` vs `calldata`) in the param type during inheritance? (version 0.6.9~0.8.13)",
-                                "description": "It was possible to change the data location of the parameters or return variables from ``calldata`` to ``memory`` and vice-versa while overriding internal and public functions. This caused invalid code to be generated when calling such a function internally through virtual function calls.",
-                                "remediation": "Use the latest Solidity version.",
-                                "references": [
-                                    "https://blog.soliditylang.org/2022/05/17/data-location-inheritance-bug/"
-                                ],
-                                "tags": []
-                            },
-                            {
                                 "id": "SOL-Basics-VI-SVI-4",
-                                "question": "Is a nested array being ABI-encoded or passed directly to an external function? (version 0.5.8~0.8.13)",
-                                "description": "ABI-reencoding of nested dynamic calldata arrays did not always perform proper size checks against the size of calldata and could read beyond ``calldatasize()``.",
-                                "remediation": "Use the latest Solidity version.",
-                                "references": [
-                                    "https://blog.soliditylang.org/2022/05/17/calldata-reencode-size-check-bug/"
-                                ],
-                                "tags": []
-                            },
-                            {
-                                "id": "SOL-Basics-VI-SVI-5",
                                 "question": "Is `abi.encodeCall` used together with fixed-length bytes literals? (version 0.8.11~0.8.12)",
                                 "description": "Literals used for a fixed length bytes parameter in ``abi.encodeCall`` were encoded incorrectly.",
                                 "remediation": "Use the latest Solidity version.",
@@ -269,7 +249,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-6",
+                                "id": "SOL-Basics-VI-SVI-5",
                                 "question": "Is there any user defined types based on types shorter than 32 bytes? (version =0.8.8)",
                                 "description": "User defined value types with underlying type shorter than 32 bytes used incorrect storage layout and wasted storage",
                                 "remediation": "Use the latest Solidity version.",
@@ -279,7 +259,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-7",
+                                "id": "SOL-Basics-VI-SVI-6",
                                 "question": "BUILD: Is the contract optimized using sequences containing FullInliner with non-expression-split code? (version 0.6.7~0.8.20)",
                                 "description": "Optimizer sequences containing FullInliner do not preserve the evaluation order of arguments of inlined function calls in code that is not in expression-split form.",
                                 "remediation": "Use the latest Solidity version.",
@@ -289,7 +269,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-8",
+                                "id": "SOL-Basics-VI-SVI-7",
                                 "question": "Is the `.selector` member accessed on complex expressions? (version 0.6.2~0.8.20)",
                                 "description": "Accessing the ``.selector`` member on complex expressions leaves the expression unevaluated in the legacy code generation.",
                                 "remediation": "Use the latest Solidity version.",
@@ -299,7 +279,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-9",
+                                "id": "SOL-Basics-VI-SVI-8",
                                 "question": "Are there any functions that conditionally terminate inside an inline assembly? (version 0.8.13~0.8.16)",
                                 "description": "Calling functions that conditionally terminate the external EVM call using the assembly statements ``return(...)`` or ``stop()`` may result in incorrect removals of prior storage writes.",
                                 "remediation": "Use the latest Solidity version.",
@@ -309,7 +289,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-10",
+                                "id": "SOL-Basics-VI-SVI-9",
                                 "question": "Are tuples containing a statically-sized calldata array at the end being ABI-encoded? (version 0.5.8~0.8.15)",
                                 "description": "ABI-encoding a tuple with a statically-sized calldata array in the last component would corrupt 32 leading bytes of its first dynamically encoded component.",
                                 "remediation": "Use the latest Solidity version.",
@@ -319,7 +299,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-2",
+                                "id": "SOL-Basics-VI-SVI-10",
                                 "question": "Is there a function with multiple inline assembly blocks? (version 0.8.13~0.8.14)",
                                 "description": "The Yul optimizer may incorrectly remove memory writes from inline assembly blocks, that do not access solidity variables.",
                                 "remediation": "Use the latest Solidity version.",
@@ -329,7 +309,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-1",
+                                "id": "SOL-Basics-VI-SVI-11",
                                 "question": "Does the contract have functions that copy `bytes` arrays from memory or calldata directly to storage? (version 0.0.1~0.8.14)",
                                 "description": "Copying ``bytes`` arrays from memory or calldata to storage may result in dirty storage values.",
                                 "remediation": "Use the latest Solidity version.",
@@ -339,17 +319,27 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-14",
-                                "question": "Does the optimizer replace specific constants with alternative computations? (version ~0.4.10)",
-                                "description": "In some situations, the optimizer replaces certain numbers in the code with routines that compute different numbers.",
+                                "id": "SOL-Basics-VI-SVI-3",
+                                "question": "Is a nested array being ABI-encoded or passed directly to an external function? (version 0.5.8~0.8.13)",
+                                "description": "ABI-reencoding of nested dynamic calldata arrays did not always perform proper size checks against the size of calldata and could read beyond ``calldatasize()``.",
                                 "remediation": "Use the latest Solidity version.",
                                 "references": [
-                                    "https://blog.soliditylang.org/2017/05/03/solidity-optimizer-bug/"
+                                    "https://blog.soliditylang.org/2022/05/17/calldata-reencode-size-check-bug/"
                                 ],
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-11",
+                                "id": "SOL-Basics-VI-SVI-2",
+                                "question": "Is there any inconsistence (`memory` vs `calldata`) in the param type during inheritance? (version 0.6.9~0.8.13)",
+                                "description": "It was possible to change the data location of the parameters or return variables from ``calldata`` to ``memory`` and vice-versa while overriding internal and public functions. This caused invalid code to be generated when calling such a function internally through virtual function calls.",
+                                "remediation": "Use the latest Solidity version.",
+                                "references": [
+                                    "https://blog.soliditylang.org/2022/05/17/data-location-inheritance-bug/"
+                                ],
+                                "tags": []
+                            },
+                            {
+                                "id": "SOL-Basics-VI-SVI-13",
                                 "question": "Is there a contract with creation code, no constructor, but a base with a constructor that accepts non-zero values? (version 0.4.5~0.6.7)",
                                 "description": "The creation code of a contract that does not define a constructor but has a base that does define a constructor did not revert for calls with non-zero value.",
                                 "remediation": "Use the latest Solidity version.",
@@ -357,7 +347,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-12",
+                                "id": "SOL-Basics-VI-SVI-14",
                                 "question": "Does the contract directly encode storage arrays with structs or static arrays in external calls or abi.encode*? (version 0.4.16~0.5.9)",
                                 "description": "Storage arrays containing structs or other statically-sized arrays are not read properly when directly encoded in external function calls or in abi.encode*.",
                                 "remediation": "Use the latest Solidity version.",
@@ -367,7 +357,17 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-13",
+                                "id": "SOL-Basics-VI-SVI-12",
+                                "question": "Does the optimizer replace specific constants with alternative computations? (version ~0.4.10)",
+                                "description": "In some situations, the optimizer replaces certain numbers in the code with routines that compute different numbers.",
+                                "remediation": "Use the latest Solidity version.",
+                                "references": [
+                                    "https://blog.soliditylang.org/2017/05/03/solidity-optimizer-bug/"
+                                ],
+                                "tags": []
+                            },
+                            {
+                                "id": "SOL-Basics-VI-SVI-15",
                                 "question": "Does the contract's optimizer handle byte opcodes with a second argument of 31 or an equivalent constant expression? (version 0.5.5~0.5.6)",
                                 "description": "The optimizer incorrectly handles byte opcodes whose second argument is 31 or a constant expression that evaluates to 31. This can result in unexpected values.",
                                 "remediation": "Use the latest Solidity version.",
@@ -377,43 +377,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-18",
-                                "question": "Does the contract access slices of dynamic arrays, especially multi-dimensional ones? (version 0.6.0~0.6.7)",
-                                "description": "Accessing array slices of arrays with dynamically encoded base types (e.g. multi-dimensional arrays) can result in invalid data being read.",
-                                "remediation": "Use the latest Solidity version.",
-                                "references": [],
-                                "tags": []
-                            },
-                            {
-                                "id": "SOL-Basics-VI-SVI-21",
-                                "question": "Is there a copy of an empty `bytes` or `string` from `memory` or `calldata` to `storage`? (version ~0.7.3)",
-                                "description": "Copying an empty byte array (or string) from memory or calldata to storage can result in data corruption if the target array's length is increased subsequently without storing new data.",
-                                "remediation": "Use the latest Solidity version.",
-                                "references": [
-                                    "https://blog.soliditylang.org/2020/10/19/empty-byte-array-copy-bug/"
-                                ],
-                                "tags": []
-                            },
-                            {
-                                "id": "SOL-Basics-VI-SVI-22",
-                                "question": "Are string literals with double backslashes passed directly to external or encoding functions with ABIEncoderV2 enabled? (version 0.5.14~0.6.7)",
-                                "description": "String literals containing double backslash characters passed directly to external or encoding function calls can lead to a different string being used when ABIEncoderV2 is enabled.",
-                                "remediation": "Use the latest Solidity version.",
-                                "references": [],
-                                "tags": []
-                            },
-                            {
-                                "id": "SOL-Basics-VI-SVI-23",
-                                "question": "Is there any use of `abi.encode` on memory with multi-dimensional array or structs? (version 0.4.16~0.8.3)",
-                                "description": "If used on memory byte arrays, result of the function ``abi.decode`` can depend on the contents of memory outside of the actual byte array that is decoded.",
-                                "remediation": "Use the latest Solidity version.",
-                                "references": [
-                                    "https://blog.soliditylang.org/2021/04/21/decoding-from-memory-bug/"
-                                ],
-                                "tags": []
-                            },
-                            {
-                                "id": "SOL-Basics-VI-SVI-19",
+                                "id": "SOL-Basics-VI-SVI-20",
                                 "question": "Does the contract use internal library functions with calldata parameters via `using for`? (version =0.6.9)",
                                 "description": "Function calls to internal library functions with calldata parameters called via ``using for`` can result in invalid data being read.",
                                 "remediation": "Use the latest Solidity version.",
@@ -421,17 +385,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-20",
-                                "question": "Is there an immutable variable of signed integer type shorter than 256 bits? (version 0.6.5~0.8.8)",
-                                "description": "Immutable variables of signed integer type shorter than 256 bits can lead to values with invalid higher order bits if inline assembly is used.",
-                                "remediation": "Use the latest Solidity version.",
-                                "references": [
-                                    "https://blog.soliditylang.org/2021/09/29/signed-immutables-bug/"
-                                ],
-                                "tags": []
-                            },
-                            {
-                                "id": "SOL-Basics-VI-SVI-15",
+                                "id": "SOL-Basics-VI-SVI-22",
                                 "question": "Is there an inline assembly block with `keccak256` inside? (version ~0.8.2)",
                                 "description": "The bytecode optimizer incorrectly re-used previously evaluated Keccak-256 hashes. You are unlikely to be affected if you do not compute Keccak-256 hashes in inline assembly.",
                                 "remediation": "Use the latest Solidity version.",
@@ -441,7 +395,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-16",
+                                "id": "SOL-Basics-VI-SVI-23",
                                 "question": "Is there a dynamically-sized storage-array with types of size at most 16 bytes? (version ~0.7.2)",
                                 "description": "When assigning a dynamically-sized array with types of size at most 16 bytes in storage causing the assigned array to shrink, some parts of deleted slots were not zeroed out.",
                                 "remediation": "Use the latest Solidity version.",
@@ -451,7 +405,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-17",
+                                "id": "SOL-Basics-VI-SVI-24",
                                 "question": "Are there any functions with the same name and parameter type inside the same contract? (version =0.7.1)",
                                 "description": "The compiler does not flag an error when two or more free functions with the same name and parameter types are defined in a source unit or when an imported free function alias shadows another free function with a different name but identical parameter types.",
                                 "remediation": "Use the latest Solidity version.",
@@ -459,25 +413,53 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-26",
-                                "question": "Does the contract assign arrays of signed integers to differently typed storage arrays? (version 0.4.7~0.5.9)",
-                                "description": "Assigning an array of signed integers to a storage array of different type can lead to data corruption in that array.",
+                                "id": "SOL-Basics-VI-SVI-17",
+                                "question": "Is there a copy of an empty `bytes` or `string` from `memory` or `calldata` to `storage`? (version ~0.7.3)",
+                                "description": "Copying an empty byte array (or string) from memory or calldata to storage can result in data corruption if the target array's length is increased subsequently without storing new data.",
                                 "remediation": "Use the latest Solidity version.",
                                 "references": [
-                                    "https://blog.soliditylang.org/2019/06/25/solidity-storage-array-bugs/"
+                                    "https://blog.soliditylang.org/2020/10/19/empty-byte-array-copy-bug/"
                                 ],
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-27",
-                                "question": "Does the contract's constructor accept structs or arrays with dynamic arrays? (version 0.4.16~0.5.8)",
-                                "description": "A contract's constructor that takes structs or arrays that contain dynamically-sized arrays reverts or decodes to invalid data.",
+                                "id": "SOL-Basics-VI-SVI-21",
+                                "question": "Is there an immutable variable of signed integer type shorter than 256 bits? (version 0.6.5~0.8.8)",
+                                "description": "Immutable variables of signed integer type shorter than 256 bits can lead to values with invalid higher order bits if inline assembly is used.",
+                                "remediation": "Use the latest Solidity version.",
+                                "references": [
+                                    "https://blog.soliditylang.org/2021/09/29/signed-immutables-bug/"
+                                ],
+                                "tags": []
+                            },
+                            {
+                                "id": "SOL-Basics-VI-SVI-16",
+                                "question": "Does the contract access slices of dynamic arrays, especially multi-dimensional ones? (version 0.6.0~0.6.7)",
+                                "description": "Accessing array slices of arrays with dynamically encoded base types (e.g. multi-dimensional arrays) can result in invalid data being read.",
                                 "remediation": "Use the latest Solidity version.",
                                 "references": [],
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-28",
+                                "id": "SOL-Basics-VI-SVI-18",
+                                "question": "Are string literals with double backslashes passed directly to external or encoding functions with ABIEncoderV2 enabled? (version 0.5.14~0.6.7)",
+                                "description": "String literals containing double backslash characters passed directly to external or encoding function calls can lead to a different string being used when ABIEncoderV2 is enabled.",
+                                "remediation": "Use the latest Solidity version.",
+                                "references": [],
+                                "tags": []
+                            },
+                            {
+                                "id": "SOL-Basics-VI-SVI-19",
+                                "question": "Is there any use of `abi.encode` on memory with multi-dimensional array or structs? (version 0.4.16~0.8.3)",
+                                "description": "If used on memory byte arrays, result of the function ``abi.decode`` can depend on the contents of memory outside of the actual byte array that is decoded.",
+                                "remediation": "Use the latest Solidity version.",
+                                "references": [
+                                    "https://blog.soliditylang.org/2021/04/21/decoding-from-memory-bug/"
+                                ],
+                                "tags": []
+                            },
+                            {
+                                "id": "SOL-Basics-VI-SVI-27",
                                 "question": "Are uninitialized internal function pointers created in the constructor being called? (version 0.5.0~0.5.7)",
                                 "description": "Calling uninitialized internal function pointers created in the constructor does not always revert and can cause unexpected behaviour.",
                                 "remediation": "Use the latest Solidity version.",
@@ -485,7 +467,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-29",
+                                "id": "SOL-Basics-VI-SVI-28",
                                 "question": "Are uninitialized internal function pointers created in the constructor being called? (version 0.4.5~0.4.25)",
                                 "description": "Calling uninitialized internal function pointers created in the constructor does not always revert and can cause unexpected behaviour.",
                                 "remediation": "Use the latest Solidity version.",
@@ -493,7 +475,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-30",
+                                "id": "SOL-Basics-VI-SVI-29",
                                 "question": "Does the library use contract types in events? (version 0.5.0~0.5.7)",
                                 "description": "Contract types used in events in libraries cause an incorrect event signature hash",
                                 "remediation": "Use the latest Solidity version.",
@@ -501,7 +483,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-31",
+                                "id": "SOL-Basics-VI-SVI-30",
                                 "question": "Does the library use contract types in events? (version 0.3.0~0.4.25)",
                                 "description": "Contract types used in events in libraries cause an incorrect event signature hash",
                                 "remediation": "Use the latest Solidity version.",
@@ -509,7 +491,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-32",
+                                "id": "SOL-Basics-VI-SVI-31",
                                 "question": "Does the contract encode storage structs or arrays with types under 32 bytes directly using experimental ABIEncoderV2? (version 0.5.0~0.5.6)",
                                 "description": "Storage structs and arrays with types shorter than 32 bytes can cause data corruption if encoded directly from storage using the experimental ABIEncoderV2.",
                                 "remediation": "Use the latest Solidity version.",
@@ -519,7 +501,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-33",
+                                "id": "SOL-Basics-VI-SVI-32",
                                 "question": "Does the contract encode storage structs or arrays with types under 32 bytes directly using experimental ABIEncoderV2? (version 0.4.19~0.4.25)",
                                 "description": "Storage structs and arrays with types shorter than 32 bytes can cause data corruption if encoded directly from storage using the experimental ABIEncoderV2.",
                                 "remediation": "Use the latest Solidity version.",
@@ -529,7 +511,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-34",
+                                "id": "SOL-Basics-VI-SVI-33",
                                 "question": "Does the contract use tuple assignments with multi-stack-slot components, like nested tuples or dynamic calldata references? (version 0.1.6~0.6.5)",
                                 "description": "Tuple assignments with components that occupy several stack slots, i.e. nested tuples, pointers to external functions or references to dynamically sized calldata arrays, can result in invalid values.",
                                 "remediation": "Use the latest Solidity version.",
@@ -537,7 +519,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-35",
+                                "id": "SOL-Basics-VI-SVI-34",
                                 "question": "Does the contract create extremely large memory arrays? (version 0.2.0~0.6.4)",
                                 "description": "The creation of very large memory arrays can result in overlapping memory regions and thus memory corruption.",
                                 "remediation": "Use the latest Solidity version.",
@@ -547,7 +529,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-36",
+                                "id": "SOL-Basics-VI-SVI-35",
                                 "question": "Does the contract's inline assembly with Yul optimizer use assignments inside for loops combined with continue or break? (version =0.6.0)",
                                 "description": "The Yul optimizer can remove essential assignments to variables declared inside for loops when Yul's continue or break statement is used. You are unlikely to be affected if you do not use inline assembly with for loops and continue and break statements.",
                                 "remediation": "Use the latest Solidity version.",
@@ -555,7 +537,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-37",
+                                "id": "SOL-Basics-VI-SVI-36",
                                 "question": "Does the contract allow private methods to be overridden by inheriting contracts? (version 0.3.0~0.5.16)",
                                 "description": "Private methods can be overridden by inheriting contracts.",
                                 "remediation": "Use the latest Solidity version.",
@@ -563,7 +545,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-38",
+                                "id": "SOL-Basics-VI-SVI-37",
                                 "question": "Is there any Yul's continue or break statement inside the loop?? (version 0.5.8~0.5.15)",
                                 "description": "The Yul optimizer can remove essential assignments to variables declared inside for loops when Yul's continue or break statement is used. You are unlikely to be affected if you do not use inline assembly with for loops and continue and break statements.",
                                 "remediation": "Use the latest Solidity version.",
@@ -571,7 +553,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-25",
+                                "id": "SOL-Basics-VI-SVI-38",
                                 "question": "Does the contract read from calldata structs with dynamic yet statically-sized members? (version 0.5.6~0.5.10)",
                                 "description": "Reading from calldata structs that contain dynamically encoded, but statically-sized members can result in incorrect values.",
                                 "remediation": "Use the latest Solidity version.",
@@ -579,7 +561,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-24",
+                                "id": "SOL-Basics-VI-SVI-39",
                                 "question": "Are both experimental ABIEncoderV2 and Yul optimizer activated? (version =0.5.14)",
                                 "description": "If both the experimental ABIEncoderV2 and the experimental Yul optimizer are activated, one component of the Yul optimizer may reuse data in memory that has been changed in the meantime.",
                                 "remediation": "Use the latest Solidity version.",
@@ -587,23 +569,25 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-41",
-                                "question": "Is the ecrecover() function used without validating its input? (version ~0.4.13)",
-                                "description": "The ecrecover() builtin can return garbage for malformed input.",
+                                "id": "SOL-Basics-VI-SVI-25",
+                                "question": "Does the contract assign arrays of signed integers to differently typed storage arrays? (version 0.4.7~0.5.9)",
+                                "description": "Assigning an array of signed integers to a storage array of different type can lead to data corruption in that array.",
+                                "remediation": "Use the latest Solidity version.",
+                                "references": [
+                                    "https://blog.soliditylang.org/2019/06/25/solidity-storage-array-bugs/"
+                                ],
+                                "tags": []
+                            },
+                            {
+                                "id": "SOL-Basics-VI-SVI-26",
+                                "question": "Does the contract's constructor accept structs or arrays with dynamic arrays? (version 0.4.16~0.5.8)",
+                                "description": "A contract's constructor that takes structs or arrays that contain dynamically-sized arrays reverts or decodes to invalid data.",
                                 "remediation": "Use the latest Solidity version.",
                                 "references": [],
                                 "tags": []
                             },
                             {
                                 "id": "SOL-Basics-VI-SVI-42",
-                                "question": "Are there any instances where empty strings are directly passed to function calls? (version ~0.4.11)",
-                                "description": "If an empty string is used in a function call, the following function arguments will not be correctly passed to the function.",
-                                "remediation": "Use the latest Solidity version.",
-                                "references": [],
-                                "tags": []
-                            },
-                            {
-                                "id": "SOL-Basics-VI-SVI-43",
                                 "question": "Are there double bitwise shifts with large constants that might sum up to overflow 256 bits? (version =0.5.5)",
                                 "description": "Double bitwise shifts by large constants whose sum overflows 256 bits can result in unexpected values.",
                                 "remediation": "Use the latest Solidity version.",
@@ -613,7 +597,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-44",
+                                "id": "SOL-Basics-VI-SVI-43",
                                 "question": "Is the ** operator used with an exponent type shorter than 256 bits? (version ~0.4.24)",
                                 "description": "Using the ** operator with an exponent of type shorter than 256 bits can result in unexpected values.",
                                 "remediation": "Use the latest Solidity version.",
@@ -623,7 +607,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-45",
+                                "id": "SOL-Basics-VI-SVI-44",
                                 "question": "Are structs used in the logged events? (version 0.4.17~0.4.24)",
                                 "description": "Using structs in events logged wrong data.",
                                 "remediation": "Use the latest Solidity version.",
@@ -633,7 +617,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-46",
+                                "id": "SOL-Basics-VI-SVI-45",
                                 "question": "Are functions returning multi-dimensional fixed-size arrays called? (version 0.1.4~0.4.21)",
                                 "description": "Calling functions that return multi-dimensional fixed-size arrays can result in memory corruption.",
                                 "remediation": "Use the latest Solidity version.",
@@ -643,7 +627,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-47",
+                                "id": "SOL-Basics-VI-SVI-46",
                                 "question": "Does the contract use both new-style and old-style constructors simultaneously? (version =0.4.22)",
                                 "description": "If a contract has both a new-style constructor (using the constructor keyword) and an old-style constructor (a function with the same name as the contract) at the same time, one of them will be ignored.",
                                 "remediation": "Use the latest Solidity version.",
@@ -651,7 +635,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-40",
+                                "id": "SOL-Basics-VI-SVI-47",
                                 "question": "Is the low-level .delegatecall() used without checking the actual execution outcome? (version 0.3.0~0.4.14)",
                                 "description": "The low-level .delegatecall() does not return the execution outcome, but converts the value returned by the functioned called to a boolean instead.",
                                 "remediation": "Use the latest Solidity version.",
@@ -659,9 +643,25 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-SVI-39",
+                                "id": "SOL-Basics-VI-SVI-48",
                                 "question": "Is there a function name crafted to potentially override the fallback function execution? (version ~0.4.17)",
                                 "description": "It is possible to craft the name of a function such that it is executed instead of the fallback function in very specific circumstances.",
+                                "remediation": "Use the latest Solidity version.",
+                                "references": [],
+                                "tags": []
+                            },
+                            {
+                                "id": "SOL-Basics-VI-SVI-41",
+                                "question": "Are there any instances where empty strings are directly passed to function calls? (version ~0.4.11)",
+                                "description": "If an empty string is used in a function call, the following function arguments will not be correctly passed to the function.",
+                                "remediation": "Use the latest Solidity version.",
+                                "references": [],
+                                "tags": []
+                            },
+                            {
+                                "id": "SOL-Basics-VI-SVI-40",
+                                "question": "Is the ecrecover() function used without validating its input? (version ~0.4.13)",
+                                "description": "The ecrecover() builtin can return garbage for malformed input.",
                                 "remediation": "Use the latest Solidity version.",
                                 "references": [],
                                 "tags": []
@@ -691,7 +691,7 @@
                         "description": "Vulnerabilities related to specific OpenZeppelin versions.",
                         "data": [
                             {
-                                "id": "SOL-Basics-VI-OVI-3",
+                                "id": "SOL-Basics-VI-OVI-1",
                                 "question": "Does the contract use OpenZeppelin's TransparentUpgradeableProxy? (version >=3.2.0 <4.8.3)",
                                 "description": "Transparency is broken in case of selector clash with non-decodable calldata. The TransparentUpgradeableProxy uses the ifAdmin modifier to achieve transparency. If a non-admin address calls the proxy the call should be frowarded transparently. This works well in most cases, but the forwarding of some functions can fail if there is a selector conflict and decoding issue.",
                                 "remediation": "Use the latest stable OpenZeppelin version",
@@ -699,7 +699,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-OVI-1",
+                                "id": "SOL-Basics-VI-OVI-2",
                                 "question": "Does the contract use OpenZeppelin's GovernorCompatibilityBravo? (version >=4.3.0 <4.8.3)",
                                 "description": "GovernorCompatibilityBravo may trim proposal calldata. The proposal creation entrypoint (propose) in GovernorCompatibilityBravo allows the creation of proposals with a signatures array shorter than the calldatas array. This causes the additional elements of the latter to be ignored, and if the proposal succeeds the corresponding actions would eventually execute without any calldata. The ProposalCreated event correctly represents what will eventually execute, but the proposal parameters as queried through getActions appear to respect the original intended calldata.",
                                 "remediation": "Use the latest stable OpenZeppelin version",
@@ -707,7 +707,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-OVI-2",
+                                "id": "SOL-Basics-VI-OVI-3",
                                 "question": "Does the contract use OpenZeppelin's ECDSA.recover or ECDSA.tryRecover? (version <4.7.3)",
                                 "description": "ECDSA signature malleability. The functions ECDSA.recover and ECDSA.tryRecover are vulnerable to a kind of signature malleability due to accepting EIP-2098 compact signatures in addition to the traditional 65 byte signature format. This is only an issue for the functions that take a single bytes argument, and not the functions that take r, v, s or r, vs as separate arguments. The potentially affected contracts are those that implement signature reuse or replay protection by marking the signature itself as used rather than the signed message or a nonce included in it. A user may take a signature that has already been submitted, submit it again in a different form, and bypass this protection.",
                                 "remediation": "Use the latest stable OpenZeppelin version",
@@ -747,7 +747,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-OVI-11",
+                                "id": "SOL-Basics-VI-OVI-16",
                                 "question": "Does the contract use OpenZeppelin's ERC721Consecutive?(version >=4.8.0 <4.8.2)",
                                 "description": "The ERC721Consecutive contract designed for minting NFTs in batches does not update balances when a batch has size 1 and consists of a single token. Subsequent transfers from the receiver of that token may overflow the balance as reported by balanceOf. The issue exclusively presents with batches of size 1.",
                                 "remediation": "Use the latest stable OpenZeppelin version",
@@ -755,7 +755,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-OVI-14",
+                                "id": "SOL-Basics-VI-OVI-12",
                                 "question": "Does the contract use OpenZeppelin's ERC165Checker or ERC165CheckerUpgradeable? (version >=2.3.0 <4.7.2)",
                                 "description": "Denial of Service (DoS) in the `supportsERC165InterfaceUnchecked()` function in `ERC165Checker.sol` and `ERC165CheckerUpgradeable.sol`, which can consume excessive resources when processing a large amount of data via an EIP-165 supportsInterface query.",
                                 "remediation": "Use the latest stable OpenZeppelin version",
@@ -763,7 +763,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-OVI-12",
+                                "id": "SOL-Basics-VI-OVI-8",
                                 "question": "Does the contract use OpenZeppelin's LibArbitrumL2 or CrossChainEnabledArbitrumL2? (version >=4.6.0 <4.7.2)",
                                 "description": "Incorrect resource transfer between spheres via contracts using the cross-chain utilities for Arbitrum L2: `CrossChainEnabledArbitrumL2` or `LibArbitrumL2`. Calls from EOAs would be classified as cross-chain calls. The vulnerability will classify direct interactions of externally owned accounts (EOAs) as cross-chain calls, even though they are not started on L1.",
                                 "remediation": "Use the latest stable OpenZeppelin version",
@@ -771,7 +771,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-OVI-13",
+                                "id": "SOL-Basics-VI-OVI-11",
                                 "question": "Does the contract use OpenZeppelin's GovernorVotesQuorumFraction? (version >=4.3.0 <4.7.2)",
                                 "description": "Checkpointing quorum was missing and past proposals that failed due to lack of quorum could pass later. It is necessary to avoid quorum changes making old, failed because of quorum, proposals suddenly successful.",
                                 "remediation": "Use the latest stable OpenZeppelin version",
@@ -779,7 +779,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-OVI-15",
+                                "id": "SOL-Basics-VI-OVI-9",
                                 "question": "Does the contract use OpenZeppelin's SignatureChecker? (version >=4.1.0 <4.7.1)",
                                 "description": "Since 0.8.0, abi.decode reverts if the bytes raw data overflow the target type. SignatureChecker.isValidSignatureNow is not expected to revert. However, an incorrect assumption about Solidity 0.8's abi.decode allows some cases to revert, given a target contract that doesn't implement EIP-1271 as expected. The contracts that may be affected are those that use SignatureChecker to check the validity of a signature and handle invalid signatures in a way other than reverting.",
                                 "remediation": "Use the latest stable OpenZeppelin version",
@@ -787,7 +787,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-OVI-16",
+                                "id": "SOL-Basics-VI-OVI-10",
                                 "question": "Does the contract use OpenZeppelin's ERC165Checker? (version >=4.0.0 <4.7.1)",
                                 "description": "Since 0.8.0, abi.decode reverts if the bytes raw data overflow the target type. ERC165Checker.supportsInterface is designed to always successfully return a boolean, and under no circumstance revert. However, an incorrect assumption about Solidity 0.8's abi.decode allows some cases to revert, given a target contract that doesn't implement EIP-165 as expected, specifically if it returns a value other than 0 or 1. The contracts that may be affected are those that use ERC165Checker to check for support for an interface and then handle the lack of support in a way other than reverting.",
                                 "remediation": "Use the latest stable OpenZeppelin version",
@@ -795,7 +795,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-OVI-8",
+                                "id": "SOL-Basics-VI-OVI-13",
                                 "question": "Does the contract use OpenZeppelin's GovernorCompatibilityBravo? (version >=4.3.0 <4.4.2)",
                                 "description": "GovernorCompatibilityBravo incorrect ABI encoding may lead to unexpected behavior",
                                 "remediation": "Use the latest stable OpenZeppelin version",
@@ -803,7 +803,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-OVI-9",
+                                "id": "SOL-Basics-VI-OVI-14",
                                 "question": "Does the contract use OpenZeppelin's Initializable? (version >=3.2.0 <4.4.1)",
                                 "description": "It is possible for `initializer()`-protected functions to be executed twice, if this happens in the same transaction. For this to happen, either one call has to be a subcall the other, or both call have to be subcalls of a common initializer()-protected function. This can particularly be dangerous is the initialization is not part of the proxy construction, and reentrancy is possible by executing an external call to an untrusted address.",
                                 "remediation": "Use the latest stable OpenZeppelin version",
@@ -811,7 +811,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Basics-VI-OVI-10",
+                                "id": "SOL-Basics-VI-OVI-15",
                                 "question": "Does the contract use OpenZeppelin's ERC1155? (version >=4.2.0 <4.3.3)",
                                 "description": "Possible inconsistency in the value returned by totalSupply DURING a mint. If you mint a token, the receiver is a smart contract, and the receiver implements onERC1155Receive, then this receiver is called with the balance already updated, but with the totalsupply not yet updated.",
                                 "remediation": "Use the latest stable OpenZeppelin version",
@@ -875,7 +875,7 @@
                 "description": "",
                 "data": [
                     {
-                        "id": "SOL-Basics-Initialization-1",
+                        "id": "SOL-Basics-Initialization-3",
                         "question": "Are important state variables initialized properly?",
                         "description": "Overlooking explicit initialization of state variables can lead to critical issues.",
                         "remediation": "Make sure to initialize all state variables correctly.",
@@ -885,7 +885,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Initialization-2",
+                        "id": "SOL-Basics-Initialization-1",
                         "question": "Has the contract inherited OpenZeppelin's Initializable?",
                         "description": "If the contract is supposed to be inherited by other contracts, `onlyInitializing` modifier MUST be used instead of `initializer`.",
                         "remediation": "Make sure to use the correct modifier for the initializer function.",
@@ -895,7 +895,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Initialization-3",
+                        "id": "SOL-Basics-Initialization-2",
                         "question": "Does the contract have a separate initializer function other than a constructor?",
                         "description": "Initializer function can be front-run right after the deployment. The impact is critical if the initializer sets the access controls.",
                         "remediation": "Use the factory pattern to allow only the factory to call the initializer or ensure it is not front-runnable in the deploy script.",
@@ -924,7 +924,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-AC-5",
+                        "id": "SOL-Basics-AC-3",
                         "question": "Are there functions lacking proper access controls?",
                         "description": "Access controls determine who can use certain functions of a contract. If these are missing or improperly implemented, it can expose the contract to unauthorized changes or withdrawals.",
                         "remediation": "Implement and rigorously test access controls like `onlyOwner` or role-based permissions to ensure only authorized users can access certain functions.",
@@ -932,7 +932,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-AC-2",
+                        "id": "SOL-Basics-AC-5",
                         "question": "Do certain addresses require whitelisting?",
                         "description": "Whitelisting allows only a specific set of addresses to interact with the contract, offering an additional layer of security against malicious actors.",
                         "remediation": "Establish a whitelisting mechanism and ensure that only trusted addresses can execute sensitive or restricted operations.",
@@ -940,7 +940,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-AC-4",
+                        "id": "SOL-Basics-AC-2",
                         "question": "Does the protocol allow transfer of privileges?",
                         "description": "Transfer of critical privileges must be done in two-step process. A two-step transfer process, usually involving a request followed by a confirmation, adds an extra layer of security against unintentional or malicious owner changes.",
                         "remediation": "Implement a two-step transfer mechanism that requires the new actor to accept the transfer, ensuring better security and intentional ownership changes.",
@@ -948,7 +948,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-AC-6",
+                        "id": "SOL-Basics-AC-4",
                         "question": "What happens during the transfer of privileges?",
                         "description": "The protocol needs to work consistently and reasonably even during the transfer of privileges.",
                         "remediation": "Double check how the protocol works during the transfer of privileges.",
@@ -956,7 +956,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-AC-3",
+                        "id": "SOL-Basics-AC-6",
                         "question": "Does the contract inherit others?",
                         "description": "If you do not override a parent contract's function explicitly, the parent's one will be exposed with its visibility and probably a wrong accessibiliy.",
                         "remediation": "Make sure you check the accessibility to the parent's external/public functions.",
@@ -996,7 +996,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Function-3",
+                        "id": "SOL-Basics-Function-7",
                         "question": "Does this function need to be restricted for specific callers?",
                         "description": "Ensure that functions modifying contract state or accessing sensitive operations are access-controlled.",
                         "remediation": "Implement access control mechanisms like `onlyOwner` or custom modifiers.",
@@ -1008,7 +1008,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Function-4",
+                        "id": "SOL-Basics-Function-9",
                         "question": "Does this function need to be called by only EOA or only contracts?",
                         "description": "There are several edge cases regarding the caller checking mechanism, both for EOA and contracts.",
                         "remediation": "Ensure the correct access control is implemented according to the protocol's context. (read all the references)",
@@ -1019,7 +1019,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Function-5",
+                        "id": "SOL-Basics-Function-3",
                         "question": "Are the inputs validated?",
                         "description": "Inputs to functions should be validated to prevent unexpected behavior.",
                         "remediation": "Ensure thourougly validate. E.g. min/max for numeric values, start/end for dates, ownership of positions.",
@@ -1031,7 +1031,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Function-6",
+                        "id": "SOL-Basics-Function-8",
                         "question": "Are the outputs validated?",
                         "description": "Outputs of functions should be validated to prevent unexpected behavior.",
                         "remediation": "Ensure the outputs are valid.",
@@ -1039,7 +1039,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Function-7",
+                        "id": "SOL-Basics-Function-4",
                         "question": "Can the function be front-run?",
                         "description": "Front-running can allow attackers to prioritize their transactions over others.",
                         "remediation": "Make sure there is no unexpected risk even if attackers front-run.",
@@ -1051,7 +1051,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Function-8",
+                        "id": "SOL-Basics-Function-5",
                         "question": "Are the code comments coherent with the implementation?",
                         "description": "Misleading or outdated comments can result in misunderstood function behaviors.",
                         "remediation": "Keep comments updated and ensure they accurately describe the function logic.",
@@ -1062,7 +1062,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Function-9",
+                        "id": "SOL-Basics-Function-6",
                         "question": "Can edge case inputs (0, max) result in unexpected behavior?",
                         "description": "Edge input values can lead to unexpected behavior.",
                         "remediation": "Make sure the function works as expected for the edge values.",
@@ -1113,7 +1113,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-PU-6",
+                        "id": "SOL-Basics-PU-5",
                         "question": "Is the `authorizeUpgrade()` function properly secured in a UUPS setup?",
                         "description": "Inadequate security on the `authorizeUpgrade()` function can allow unauthorized upgrades.",
                         "remediation": "Ensure proper access controls and checks are in place for the `authorizeUpgrade()` function.",
@@ -1121,7 +1121,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-PU-7",
+                        "id": "SOL-Basics-PU-6",
                         "question": "Could an upgrade of the contract result in storage collision?",
                         "description": "Storage collisions can occur when storage layouts between contract versions conflict, leading to data corruption and unpredictable behavior.",
                         "remediation": "Maintain a consistent storage layout between upgrades, and when using inheritance, set storage gaps to avoid potential collisions.",
@@ -1129,7 +1129,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-PU-8",
+                        "id": "SOL-Basics-PU-7",
                         "question": "Are `selfdestruct` and `delegatecall` used within the implementation contracts?",
                         "description": "Using `selfdestruct` and `delegatecall` in implementation contracts can introduce vulnerabilities and unexpected behavior in a proxy setup.",
                         "remediation": "Avoid using `selfdestruct` and `delegatecall` in implementation contracts to ensure contract stability and security.",
@@ -1137,7 +1137,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-PU-9",
+                        "id": "SOL-Basics-PU-8",
                         "question": "Are values in immutable variables preserved between upgrades?",
                         "description": "Immutable variables are stored in the bytecode, not in the proxy storage. So using immutable variable is not recommended in proxy setup. If used, make sure all immutables stay consistent across implementations during upgrades.",
                         "remediation": "Avoid using immutable variables in upgradable contracts.",
@@ -1145,7 +1145,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-PU-10",
+                        "id": "SOL-Basics-PU-9",
                         "question": "Are the order and types of storage variables consistent between upgrades?",
                         "description": "Changing the order or type of storage variables between upgrades can lead to storage collisions.",
                         "remediation": "Maintain a consistent order and type for storage variables across contract versions to avoid storage collisions.",
@@ -1153,7 +1153,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-PU-5",
+                        "id": "SOL-Basics-PU-10",
                         "question": "Has the contract inherited the correct branch of OpenZeppelin library?",
                         "description": "Sometimes developers overlook and use an incorrect branch of OZ library, e.g. use Ownbale instead of OwnableUpgradeable.",
                         "remediation": "Make sure inherit the correct branch of OZ library according to the contract's upgradability design.",
@@ -1268,7 +1268,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Math-12",
+                        "id": "SOL-Basics-Math-11",
                         "question": "Have you taken into consideration mathematical operations in inline assembly?",
                         "description": "Inline assembly can behave differently than high-level language constructs. (division by zero, overflow/underflow do not revert!)",
                         "remediation": "Ensure mathematical operations in inline assembly are properly tested and verified.",
@@ -1276,7 +1276,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Math-11",
+                        "id": "SOL-Basics-Math-12",
                         "question": "What happens for the minimum/maximum values included in the calculation?",
                         "description": "If the calculation includes numerious terms, you need to confirm all edge cases where each term has the possible min/max values.",
                         "remediation": "Ensure the edge cases do not lead to unexpected outcome.",
@@ -1290,19 +1290,7 @@
                 "description": "",
                 "data": [
                     {
-                        "id": "SOL-Basics-Payment-1",
-                        "question": "Is `transfer()` or `send()` used for sending ETH?",
-                        "description": "The transfer() and send() functions forward a fixed amount of 2300 gas. Historically, it has often been recommended to use these functions for value transfers to guard against reentrancy attacks. However, the gas cost of EVM instructions may change significantly during hard forks which may break already deployed contract systems that make fixed assumptions about gas costs. For example. EIP 1884 broke several existing smart contracts due to a cost increase of the SLOAD instruction.",
-                        "remediation": "Use `call()` to prevent potential gas issues.",
-                        "references": [
-                            "https://solodit.xyz/issues/use-call-instead-of-transfer-cyfrin-none-woosh-deposit-vault-markdown",
-                            "https://solodit.xyz/issues/m-5-call-should-be-used-instead-of-transfer-on-an-address-payable-sherlock-dodo-dodo-git",
-                            "https://solodit.xyz/issues/m-10-addresscallvaluex-should-be-used-instead-of-payabletransfer-code4rena-debt-dao-debt-dao-contest-git"
-                        ],
-                        "tags": []
-                    },
-                    {
-                        "id": "SOL-Basics-Payment-3",
+                        "id": "SOL-Basics-Payment-2",
                         "question": "Is it possible for the receiver to revert?",
                         "description": "There are cases where a receiver contract can deny the transaction. For example, a malicious receiver can have a fallback to revert. If a caller tried to send funds using `transfer` or `send`, the whole transaction will revert. (Meanwhile, `call()` does not revert but returns a boolean)",
                         "remediation": "Make sure that the receiver can not deny the payment or add a backup handler with a try-catch.",
@@ -1310,7 +1298,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Payment-4",
+                        "id": "SOL-Basics-Payment-3",
                         "question": "Does the function gets the payment amount as a parameter?",
                         "description": "For ETH deposits, `msg.value` must be checked if it is not less than the amount specified.",
                         "remediation": "Require `msg.value==amount`.",
@@ -1318,7 +1306,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Payment-5",
+                        "id": "SOL-Basics-Payment-4",
                         "question": "Are there vulnerabilities related to force-feeding?",
                         "description": "Certain actions like self-destruct, deterministic address feeding, and coinbase transactions can be used to force-feed contracts.",
                         "remediation": "Ensure the contract behaves as expected when receiving unexpected funds.",
@@ -1328,7 +1316,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Payment-6",
+                        "id": "SOL-Basics-Payment-5",
                         "question": "How is the withdrawal handled?",
                         "description": "The best practice in withdrawal process is to implement pull-based approach. Track the accounting and let users pull the payments instead of sending funds proactively.",
                         "remediation": "Implement pull-based approach in withdrawals.",
@@ -1336,11 +1324,23 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Basics-Payment-2",
+                        "id": "SOL-Basics-Payment-6",
                         "question": "What is the minimum deposit/withdrawal amount?",
                         "description": "Dust deposit/withdrawal often can lead to various vulnerabilities, e.g. rounding issue in accounting or Denial-Of-Service.",
                         "remediation": "Add a threshold for the deposit/withdrawal amount.",
                         "references": [],
+                        "tags": []
+                    },
+                    {
+                        "id": "SOL-Basics-Payment-1",
+                        "question": "Is `transfer()` or `send()` used for sending ETH?",
+                        "description": "The transfer() and send() functions forward a fixed amount of 2300 gas. Historically, it has often been recommended to use these functions for value transfers to guard against reentrancy attacks. However, the gas cost of EVM instructions may change significantly during hard forks which may break already deployed contract systems that make fixed assumptions about gas costs. For example. EIP 1884 broke several existing smart contracts due to a cost increase of the SLOAD instruction.",
+                        "remediation": "Use `call()` to prevent potential gas issues.",
+                        "references": [
+                            "https://solodit.xyz/issues/use-call-instead-of-transfer-cyfrin-none-woosh-deposit-vault-markdown",
+                            "https://solodit.xyz/issues/m-5-call-should-be-used-instead-of-transfer-on-an-address-payable-sherlock-dodo-dodo-git",
+                            "https://solodit.xyz/issues/m-10-addresscallvaluex-should-be-used-instead-of-payabletransfer-code4rena-debt-dao-debt-dao-contest-git"
+                        ],
                         "tags": []
                     }
                 ]
@@ -1431,7 +1431,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-General-5",
+                        "id": "SOL-Defi-General-3",
                         "question": "Could the initial deposit introduce any issues?",
                         "description": "The first deposit can set certain parameters or conditions that subsequent deposits rely on.",
                         "remediation": "Test and ensure that the first deposit initializes and sets all necessary parameters correctly.",
@@ -1439,7 +1439,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-General-6",
+                        "id": "SOL-Defi-General-4",
                         "question": "Can the protocol handle ERC20 tokens with decimals other than 18?",
                         "description": "Not all ERC20 tokens use 18 decimals. Overlooking this can lead to computation errors.",
                         "remediation": "Always check and adjust for the decimal count of the ERC20 tokens being handled.",
@@ -1447,7 +1447,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-General-7",
+                        "id": "SOL-Defi-General-5",
                         "question": "What would happen if only 1 wei remains in the pool?",
                         "description": "Leaving residual amounts can lead to discrepancies in accounting or locked funds.",
                         "remediation": "Implement logic to handle minimal residual amounts in the pool.",
@@ -1455,7 +1455,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-General-8",
+                        "id": "SOL-Defi-General-6",
                         "question": "Is it possible to withdraw in the same transaction of deposit?",
                         "description": "Protocols often provide various benefits to the depositors based on the deposit amount. This can lead to flashloan-deposit-harvest-withdraw attack cycle.",
                         "remediation": "Ensure the withdrawal is protected for some blocks after deposit.",
@@ -1463,7 +1463,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-General-2",
+                        "id": "SOL-Defi-General-7",
                         "question": "Are the protocol token pegged to any other asset?",
                         "description": "The target tokens can be depegged.",
                         "remediation": "Ensure the protocol behave as expected during the depeg.",
@@ -1471,7 +1471,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-General-3",
+                        "id": "SOL-Defi-General-8",
                         "question": "Are there unexpected rewards accruing for user deposited assets?",
                         "description": "Some protocols or platforms may provide additional rewards for staked or deposited assets. If these rewards are not properly accounted for or managed, it could lead to discrepancies in the user's expected vs actual returns.",
                         "remediation": "The protocol should have mechanisms in place to track all potential rewards for user deposited assets. Users should be provided with clear interfaces or methods to claim any unexpected rewards to ensure fairness and transparency.",
@@ -1479,7 +1479,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-General-4",
+                        "id": "SOL-Defi-General-2",
                         "question": "Does the protocol revert on maximum approval to prevent over-allowance?",
                         "description": "Setting high allowances can make funds vulnerable to abuse; protocols sometimes set max to prevent this risk.",
                         "remediation": "Consider implementing a revert on approval functions when an unnecessarily high allowance is set.",
@@ -1505,7 +1505,7 @@
                 "description": "Price oracle related vulnerabilities",
                 "data": [
                     {
-                        "id": "SOL-Defi-Oracle-7",
+                        "id": "SOL-Defi-Oracle-6",
                         "question": "Is the Oracle using deprecated Chainlink functions?",
                         "description": "Usage of deprecated Chainlink functions like latestRoundData() might return stale or incorrect data, affecting the integrity of smart contracts.",
                         "remediation": "Replace deprecated functions with the current recommended methods to ensure accurate data retrieval from oracles.",
@@ -1523,7 +1523,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Oracle-2",
+                        "id": "SOL-Defi-Oracle-7",
                         "question": "Is the price update time validated?",
                         "description": "Price feeds might not be supported in the future. To ensure accurate price usage, it's vital to regularly check the last update timestamp against a predefined delay.",
                         "remediation": "Implement a mechanism to check the heartbeat of the price feed and compare it against a predefined maximum delay (`MAX_DELAY`). Adjust the `MAX_DELAY` variable based on the observed heartbeat.",
@@ -1531,7 +1531,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Oracle-3",
+                        "id": "SOL-Defi-Oracle-2",
                         "question": "Is there a validation to check if the rollup sequencer is running?",
                         "description": "The rollup sequencer can become offline, which can lead to potential vulnerabilities due to stale price.",
                         "remediation": "Utilize the sequencer uptime feed to confirm the sequencers are up.",
@@ -1541,7 +1541,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Oracle-4",
+                        "id": "SOL-Defi-Oracle-3",
                         "question": "Is the Oracle's TWAP period appropriately set?",
                         "description": "An inadequately set TWAP (Time-Weighted Average Price) period could be exploited to manipulate prices.",
                         "remediation": "Adjust the TWAP period to a duration that mitigates the risk of manipulation while providing timely price updates.",
@@ -1551,7 +1551,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Oracle-5",
+                        "id": "SOL-Defi-Oracle-4",
                         "question": "Is the desired price feed pair supported across all deployed chains?",
                         "description": "In multi-chain deployments, it's crucial to ensure the desired price feed pair is available and consistent across all chains.",
                         "remediation": "Review the supported price feed pairs on all chains and ensure they are consistent.",
@@ -1559,7 +1559,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Oracle-6",
+                        "id": "SOL-Defi-Oracle-5",
                         "question": "Is the heartbeat of the price feed suitable for the use case?",
                         "description": "A price feed heartbeat that's too slow might not be suitable for some use cases.",
                         "remediation": "Assess the requirements of the use case and ensure the price feed heartbeat aligns with them.",
@@ -1567,7 +1567,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Oracle-10",
+                        "id": "SOL-Defi-Oracle-8",
                         "question": "Are there any inconsistencies with decimal precision when using different price feeds?",
                         "description": "Different price feeds might have varying decimal precisions, which can lead to inaccuracies.",
                         "remediation": "Ensure that the contract handles potential variations in decimal precision across different price feeds.",
@@ -1575,7 +1575,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Oracle-11",
+                        "id": "SOL-Defi-Oracle-9",
                         "question": "Is the price feed address hard-coded?",
                         "description": "Hard-coded price feed addresses can be problematic, especially if they become deprecated or if they're not accurate in the first place.",
                         "remediation": "Review and verify the hardcoded price feed addresses. Consider mechanisms to update the address if required in the future.",
@@ -1583,7 +1583,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Oracle-12",
+                        "id": "SOL-Defi-Oracle-10",
                         "question": "What happens if oracle price updates are front-run?",
                         "description": "Oracle price updates can be front-run and cause various problems.",
                         "remediation": "Ensure the protocl is not affected in the case where oracle price updates are front-run.",
@@ -1593,7 +1593,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Oracle-13",
+                        "id": "SOL-Defi-Oracle-11",
                         "question": "How does the system handle potential oracle reverts?",
                         "description": "Unanticipated oracle reverts can lead to Denial-Of-Service.",
                         "remediation": "Implement try/catch blocks around oracle calls and have alternative strategies ready.",
@@ -1601,7 +1601,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Oracle-14",
+                        "id": "SOL-Defi-Oracle-12",
                         "question": "Are the price feeds appropriate for the underlying assets?",
                         "description": "Using an ETH price feed for stETH or a BTC price feed for WBTC can introduce risks associated with the underlying assets deviating from their pegs.",
                         "remediation": "Ensure that the price feeds accurately represent the underlying assets to address potential depeg risks.",
@@ -1609,7 +1609,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Oracle-8",
+                        "id": "SOL-Defi-Oracle-14",
                         "question": "How does the system address potential inaccuracies during flash crashes?",
                         "description": "During flash crashes, oracles might return inaccurate prices.",
                         "remediation": "Implement checks to ensure that the price returned by the oracle lies within an expected range to guard against potential flash crash vulnerabilities.",
@@ -1617,7 +1617,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Oracle-9",
+                        "id": "SOL-Defi-Oracle-13",
                         "question": "Is the contract vulnerable to oracle manipulation, especially using spot prices from AMMs?",
                         "description": "Reliance on AMM spot prices as oracles can be manipulated via flashloan.",
                         "remediation": "Choose reliable and tamper-resistant oracle sources. Avoid using spot prices from AMMs directly without additional checks.",
@@ -1755,7 +1755,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Lending-6",
+                        "id": "SOL-Defi-Lending-4",
                         "question": "Is it possible for a user to gain undue profit from self-liquidation?",
                         "description": "Self-liquidation profit loopholes can lead to potential system abuse and unintended financial consequences.",
                         "remediation": "Audit and test self-liquidation mechanisms to prevent any exploitative behaviors.",
@@ -1763,7 +1763,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Lending-5",
+                        "id": "SOL-Defi-Lending-3",
                         "question": "If token transfers or collateral additions are temporarily paused, can a user still be liquidated, even if they intend to deposit more funds?",
                         "description": "Unexpected pauses can place users at risk of unwarranted liquidations, despite their willingness to increase collateral.",
                         "remediation": "Implement safeguards that protect users from liquidation during operational pauses or interruptions.",
@@ -1771,7 +1771,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Lending-12",
+                        "id": "SOL-Defi-Lending-9",
                         "question": "Will the liquidation process function effectively during rapid market downturns?",
                         "description": "Failure to liquidate positions during sharp price drops can result in substantial platform losses.",
                         "remediation": "Ensure robustness during extreme market conditions.",
@@ -1779,7 +1779,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Lending-7",
+                        "id": "SOL-Defi-Lending-5",
                         "question": "Is there a scenario where a liquidator might receive a lesser amount than anticipated?",
                         "description": "Discrepancies in liquidation returns can discourage liquidators and impact system stability.",
                         "remediation": "Ensure a clear and consistent calculation mechanism for liquidation rewards.",
@@ -1787,7 +1787,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Lending-8",
+                        "id": "SOL-Defi-Lending-10",
                         "question": "If liquidations are temporarily suspended, what are the implications when they are resumed?",
                         "description": "Pausing liquidations can increase the solvency risk and lead to unpredictable behaviors upon resumption.",
                         "remediation": "Outline clear protocols for pausing and resuming liquidations, ensuring solvency is maintained.",
@@ -1795,7 +1795,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Lending-9",
+                        "id": "SOL-Defi-Lending-6",
                         "question": "Is it possible for users to manipulate the system by front-running and slightly increasing their collateral to prevent liquidations?",
                         "description": "Lenders must be prevented from griefing via front-running the liquidation.",
                         "remediation": "Ensure it is not possible to prevent liquidators by any means.",
@@ -1803,7 +1803,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Lending-10",
+                        "id": "SOL-Defi-Lending-7",
                         "question": "Are all positions, regardless of size, incentivized adequately for liquidation?",
                         "description": "Without proper incentives, small positions might be overlooked, leading to inefficiencies.",
                         "remediation": "Ensure a balanced incentive structure that motivates liquidators to address positions of all sizes.",
@@ -1811,7 +1811,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Lending-11",
+                        "id": "SOL-Defi-Lending-8",
                         "question": "Is interest considered during Loan-to-Value (LTV) calculation?",
                         "description": "Omitting interest in LTV calculations can result in inaccurate credit assessments.",
                         "remediation": "Include accrued interest in LTV calculations to maintain accurate and fair credit evaluations.",
@@ -1821,7 +1821,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Lending-3",
+                        "id": "SOL-Defi-Lending-11",
                         "question": "Can liquidation and repaying be enabled or disabled simultaneously?",
                         "description": "Protocols might need to ensure that liquidation and repaying mechanisms are either both active or inactive to maintain consistency.",
                         "remediation": "Review protocol logic to allow or disallow liquidation and repaying functions collectively to avoid operational discrepancies.",
@@ -1831,7 +1831,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Defi-Lending-4",
+                        "id": "SOL-Defi-Lending-12",
                         "question": "Is it possible to lend and borrow the same token within a single transaction?",
                         "description": "Protocols that allow the same token to be lent and borrowed in a single transaction may be vulnerable to attacks that exploit rapid price inflation or flash loans to manipulate the system.",
                         "remediation": "Protocols should implement constraints to prohibit the same token from being used in a lend and borrow action within the same block or transaction, reducing the risk of flash-loan attacks and other manipulative practices.",
@@ -1901,26 +1901,11 @@
         "description": "",
         "data": [
             {
-                "id": "SOL-EC-1",
+                "id": "SOL-EC-2",
                 "question": "Is the external contract call necessary?",
                 "description": "Unnecessary external calls can introduce vulnerabilities.",
                 "remediation": "Evaluate and eliminate non-essential external contract calls.",
                 "references": [],
-                "tags": []
-            },
-            {
-                "id": "SOL-EC-2",
-                "question": "Is the address's existence verified?",
-                "description": "Calling non-existent addresses can lead to unintended behaviors. Low level calls (call, delegate call and static call) return success if the called contract doesn't exist (not deployed or destructed)",
-                "remediation": "Verify the existence of an address before making a call.",
-                "references": [
-                    "https://solodit.xyz/issues/h-02-non-existing-revenue-contract-can-be-passed-to-claimrevenue-to-send-all-tokens-to-treasury-code4rena-debt-dao-debt-dao-contest-git",
-                    "https://solodit.xyz/issues/m-10-call-to-non-existing-contracts-returns-success-code4rena-biconomy-biconomy-hyphen-20-contest-git",
-                    "https://solodit.xyz/issues/lack-of-contract-existence-check-on-delegatecall-will-result-in-unexpected-behavior-trailofbits-fuji-protocol-pdf",
-                    "https://solodit.xyz/issues/m-02-solmates-erc20-does-not-check-for-token-contracts-existence-which-opens-up-possibility-for-a-honeypot-attack-code4rena-size-size-contest-git",
-                    "https://solodit.xyz/issues/m-25-vault-can-be-created-for-not-yet-existing-erc20-tokens-which-allows-attackers-to-set-traps-to-steal-nfts-from-borrowers-code4rena-astaria-astaria-git",
-                    "https://solodit.xyz/issues/calls-made-to-non-existentremoved-routes-or-controllers-will-not-result-in-failure-consensys-socket-markdown"
-                ],
                 "tags": []
             },
             {
@@ -1969,7 +1954,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-EC-9",
+                "id": "SOL-EC-7",
                 "question": "Is the contract passing large data to an unknown address?",
                 "description": "Large data passed to untrusted addresses may be exploited for griefing.",
                 "remediation": "Limit data passed or employ inline assembly to manage data transfer.",
@@ -1979,7 +1964,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-EC-10",
+                "id": "SOL-EC-8",
                 "question": "What happens if the call returns vast data?",
                 "description": "External calls returning vast data can deplete available gas.",
                 "remediation": "Limit or verify data size returned from external sources.",
@@ -1987,7 +1972,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-EC-11",
+                "id": "SOL-EC-9",
                 "question": "Are there any delegate calls to non-library contracts?",
                 "description": "Non-library delegate calls can alter the state of the calling contract.",
                 "remediation": "Thoroughly review and verify such delegate calls so that the delegate calls do not change the caller's state unexpectedly.",
@@ -1995,7 +1980,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-EC-12",
+                "id": "SOL-EC-13",
                 "question": "Is there a strict policy against delegate calls to untrusted contracts?",
                 "description": "Delegate calls grant the called contract the context of the caller, risking state alterations.",
                 "remediation": "Restrict delegate calls to only trusted, reviewed, and audited contracts.",
@@ -2005,7 +1990,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-EC-13",
+                "id": "SOL-EC-10",
                 "question": "What are the implications if the call reenters a different function?",
                 "description": "Reentrant calls to different functions can unpredictably alter contract states. Note that view functions should be checked as well to prevent the Readonly Reentrancy.",
                 "remediation": "Ensure the contract state is maintained reasonably during the external interactions.",
@@ -2016,7 +2001,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-EC-7",
+                "id": "SOL-EC-11",
                 "question": "Is there a multi-call?",
                 "description": "Mismanagement of `msg.value` across multiple calls can lead to vulnerabilities.",
                 "remediation": "Do not use ETH in multicall.",
@@ -2026,7 +2011,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-EC-8",
+                "id": "SOL-EC-12",
                 "question": "What are the risks associated with using delegatecall in smart contracts?",
                 "description": "A delegatecall is a low-level function call that delegates the execution of a function in another contract while maintaining the original contract's context. It can lead to critical vulnerabilities if the destination address is not secure or can be altered by an unauthorized party.",
                 "remediation": "Use delegatecall only with trusted contracts, and ensure that the address to be delegated to is not changeable by unauthorized users. Implement strong access controls and audit the code for potential security issues before deployment.",
@@ -2034,6 +2019,21 @@
                 "tags": [
                     "SWC-112"
                 ]
+            },
+            {
+                "id": "SOL-EC-1",
+                "question": "Is the address's existence verified?",
+                "description": "Calling non-existent addresses can lead to unintended behaviors. Low level calls (call, delegate call and static call) return success if the called contract doesn't exist (not deployed or destructed)",
+                "remediation": "Verify the existence of an address before making a call.",
+                "references": [
+                    "https://solodit.xyz/issues/h-02-non-existing-revenue-contract-can-be-passed-to-claimrevenue-to-send-all-tokens-to-treasury-code4rena-debt-dao-debt-dao-contest-git",
+                    "https://solodit.xyz/issues/m-10-call-to-non-existing-contracts-returns-success-code4rena-biconomy-biconomy-hyphen-20-contest-git",
+                    "https://solodit.xyz/issues/lack-of-contract-existence-check-on-delegatecall-will-result-in-unexpected-behavior-trailofbits-fuji-protocol-pdf",
+                    "https://solodit.xyz/issues/m-02-solmates-erc20-does-not-check-for-token-contracts-existence-which-opens-up-possibility-for-a-honeypot-attack-code4rena-size-size-contest-git",
+                    "https://solodit.xyz/issues/m-25-vault-can-be-created-for-not-yet-existing-erc20-tokens-which-allows-attackers-to-set-traps-to-steal-nfts-from-borrowers-code4rena-astaria-astaria-git",
+                    "https://solodit.xyz/issues/calls-made-to-non-existentremoved-routes-or-controllers-will-not-result-in-failure-consensys-socket-markdown"
+                ],
+                "tags": []
             }
         ]
     },
@@ -2042,7 +2042,7 @@
         "description": "",
         "data": [
             {
-                "id": "SOL-HMT-5",
+                "id": "SOL-HMT-3",
                 "question": "Is the Merkle tree vulnerable to front-running attacks?",
                 "description": "When using a merkle tree, the new proof is calculated at a certain time and there exists a period of time between when the proof is generated and the proof is published.",
                 "remediation": "Ensure that front-running the merkle proof setting does not affect the protocol.",
@@ -2050,7 +2050,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-HMT-1",
+                "id": "SOL-HMT-4",
                 "question": "Are the leaves of the Merkle tree hashed with the claimable address included?",
                 "description": "Not including claimable addresses when hashing leaves can let an attacker to claim.",
                 "remediation": "Ensure that the Merkle tree construction includes the hashing of claimable addresses within the leaves.",
@@ -2058,7 +2058,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-HMT-2",
+                "id": "SOL-HMT-5",
                 "question": "Does the claim method validate `msg.sender`?",
                 "description": "Validation of `msg.sender` is critical in the use of Merkle tree.",
                 "remediation": "Ensure that the `msg.sender` is actually the same address included in the leave.",
@@ -2066,7 +2066,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-HMT-3",
+                "id": "SOL-HMT-1",
                 "question": "What is the result when passing a zero hash to the Merkle tree functions?",
                 "description": "Passing the zero hash can lead to unintended behaviors or vulnerabilities if not properly handled.",
                 "remediation": "Implement checks to handle zero hash values appropriately and prevent potential misuse.",
@@ -2074,7 +2074,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-HMT-4",
+                "id": "SOL-HMT-2",
                 "question": "What occurs if the same proof is duplicated within the Merkle tree?",
                 "description": "Duplicate proofs within a Merkle tree can lead to double-spending or other vulnerabilities.",
                 "remediation": "Ensure the Merkle tree construction and verification process detects and prevents the use of duplicate proofs.",
@@ -2088,6 +2088,16 @@
         "description": "",
         "data": [
             {
+                "id": "SOL-Heuristics-10",
+                "question": "Are there rounding errors that can be amplified?",
+                "description": "While minor rounding errors can be inevitable in certain operations, they can pose significant issues if they can be magnified. Amplification can occur when a function is invoked multiple times strategically or under specific conditions.",
+                "remediation": "Conduct thorough tests to identify and understand potential rounding errors. Ensure that they cannot be amplified to a level that would be detrimental to the system or its users. In cases where significant rounding errors are detected, the implementation should be revised to minimize or eliminate them.",
+                "references": [
+                    "https://github.com/OpenCoreCH/smart-contract-audits/blob/main/reports/c4/rigor.md#high-significant-rounding-errors-for-interest-calculation"
+                ],
+                "tags": []
+            },
+            {
                 "id": "SOL-Heuristics-1",
                 "question": "Are there any code asymmetries?",
                 "description": "In many projects, there should be some symmetries for different functions. For instance, a `withdraw` function should (usually) undo all the state changes of a `deposit` function and a `delete` function should undo all the state changes of the corresponding `add` function. Asymmetries in these function pairs (e.g., forgetting to unset a field or to subtract from a value) can often lead to undesired behavior. Sometimes one side of a 'pair' is missing, like missing removing from a whitelist while there is a function to add to a whitelist.",
@@ -2098,7 +2108,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-Heuristics-3",
+                "id": "SOL-Heuristics-2",
                 "question": "Is there any logic implemented multiple times?",
                 "description": "Inconsistent implementations of the same logic can introduce errors or vulnerabilities.",
                 "remediation": "Standardize the logic and make it as a separate function.",
@@ -2106,7 +2116,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-Heuristics-2",
+                "id": "SOL-Heuristics-3",
                 "question": "Does the contract use any nested structures?",
                 "description": "If a variable of nested structure is deleted, only the top-level fields are reset by default values (zero) and the nested level fields are not reset.",
                 "remediation": "Always ensure that inner fields are deleted before the outer fields of the structure.",
@@ -2114,7 +2124,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-Heuristics-7",
+                "id": "SOL-Heuristics-13",
                 "question": "Is there any unexpected behavior when `src==dst` (or `caller==receiver`)?",
                 "description": "Overlooking the possibility of a sender and a recipient (source and destination) being the same in smart contracts can lead to unintended problems.",
                 "remediation": "Ensure the protcol behaves as expected when `src==dst`.",
@@ -2122,7 +2132,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-Heuristics-8",
+                "id": "SOL-Heuristics-4",
                 "question": "Is the NonReentrant modifier placed before every other modifier?",
                 "description": "The order of modifiers can influence the behavior of a function. Generally,  NonReentrant must come first than other modifiers.",
                 "remediation": "Reorder modifiers so that NonReentrant is placed before other modifiers.",
@@ -2130,7 +2140,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-Heuristics-9",
+                "id": "SOL-Heuristics-5",
                 "question": "Does the `try/catch` block account for potential gas shortages?",
                 "description": "A `try/catch` block without adequate gas can fail, leading to unexpected behaviors.",
                 "remediation": "Ensure sufficient gas is supplied when using the `try/catch` block.",
@@ -2140,7 +2150,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-Heuristics-10",
+                "id": "SOL-Heuristics-6",
                 "question": "Did you check the relevant EIP recommendations and security concerns?",
                 "description": "Incomplete or incorrect implementation of EIP recommendations can lead to vulnerabilities.",
                 "remediation": "Read the recommendations and security concerns and ensure all are implemented as per the official recommendations.",
@@ -2148,7 +2158,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-Heuristics-11",
+                "id": "SOL-Heuristics-7",
                 "question": "Are there any off-by-one errors?",
                 "description": "Off-by-one errors are not rare. Is `<=` correct in this context or should `<` be used? Should a variable be set to the length of a list or the length - 1? Should an iteration start at 1 or 0?",
                 "remediation": "Review all usages of comparison operators for correctness.",
@@ -2156,7 +2166,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-Heuristics-12",
+                "id": "SOL-Heuristics-8",
                 "question": "Are logical operators used correctly?",
                 "description": "Logical operators like `==`, `!=`, `&&`, `||`, `!` can be overlooked especially when the test coverage is not good.",
                 "remediation": "Review all usages of logical operators for correctness.",
@@ -2164,7 +2174,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-Heuristics-13",
+                "id": "SOL-Heuristics-9",
                 "question": "What happens if the protocol's contracts are inputted as if they are normal actors?",
                 "description": "Supplying unexpected addresses can lead to unintended behaviors, especially if the address points to another contract inside the same protocol.",
                 "remediation": "Implement checks to validate receiver addresses and ensure the protocol behaves as expected.",
@@ -2172,17 +2182,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-Heuristics-14",
-                "question": "Are there rounding errors that can be amplified?",
-                "description": "While minor rounding errors can be inevitable in certain operations, they can pose significant issues if they can be magnified. Amplification can occur when a function is invoked multiple times strategically or under specific conditions.",
-                "remediation": "Conduct thorough tests to identify and understand potential rounding errors. Ensure that they cannot be amplified to a level that would be detrimental to the system or its users. In cases where significant rounding errors are detected, the implementation should be revised to minimize or eliminate them.",
-                "references": [
-                    "https://github.com/OpenCoreCH/smart-contract-audits/blob/main/reports/c4/rigor.md#high-significant-rounding-errors-for-interest-calculation"
-                ],
-                "tags": []
-            },
-            {
-                "id": "SOL-Heuristics-4",
+                "id": "SOL-Heuristics-12",
                 "question": "Is there any uninitialized state?",
                 "description": "Checking a variable against its default value might be used to detect initialization. If such defaults can also be valid state, it could lead to vulnerabilities.",
                 "remediation": "Avoid solely relying on default values to determine initialization status.",
@@ -2190,7 +2190,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-Heuristics-15",
+                "id": "SOL-Heuristics-11",
                 "question": "Can functions be invoked multiple times with identical parameters?",
                 "description": "Functions that should be unique per parameters set might be callable multiple times, leading to potential issues.",
                 "remediation": "Ensure functions have measures to prevent repeated calls with identical or similar parameters, especially when these calls can produce adverse effects.",
@@ -2198,7 +2198,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-Heuristics-5",
+                "id": "SOL-Heuristics-14",
                 "question": "Is the global state updated correctly?",
                 "description": "While working with a `memory` copy for optimization, developers might overlook updating the global state.",
                 "remediation": "Always ensure the global state mirrors changes made in `memory`. Consider tools or extensions that can highlight discrepancies.",
@@ -2206,7 +2206,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-Heuristics-6",
+                "id": "SOL-Heuristics-15",
                 "question": "Is ETH/WETH handling implemented correctly?",
                 "description": "Contracts might have special logic for ETH, like wrapping to WETH. Assuming exclusivity between handling ETH and WETH without checks can introduce errors.",
                 "remediation": "Clearly differentiate the logic between ETH and WETH handling, ensuring no overlap or mutual exclusivity assumptions without validation.",
@@ -2274,7 +2274,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Integrations-LSD-stETH-3",
+                                "id": "SOL-Integrations-LSD-stETH-1",
                                 "question": "Does the application handle conversions between `stETH` and `wstETH` correctly?",
                                 "description": "Converting between `stETH` and `wstETH` can be tricky due to the rebasing nature of `stETH`. It's crucial to handle these conversions correctly to avoid potential issues.",
                                 "remediation": "Ensure that the rebasing characteristics of `stETH` are properly managed when converting between `stETH` and `wstETH`.",
@@ -2282,7 +2282,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Integrations-LSD-stETH-1",
+                                "id": "SOL-Integrations-LSD-stETH-3",
                                 "question": "Are you aware of the overhead when withdrawing `stETH`/`wstETH`?",
                                 "description": "Withdrawing `stETH` or `wstETH` can introduce overheads, due to various problems like queue time, receipt of an NFT, and withdrawal amount limits.",
                                 "remediation": "Ensure account for these overheads and constraints in the protocol logic.",
@@ -2296,7 +2296,7 @@
                         "description": "",
                         "data": [
                             {
-                                "id": "SOL-Integrations-LSD-rETH-5",
+                                "id": "SOL-Integrations-LSD-rETH-4",
                                 "question": "How does the system handle the conversion between `ETH` and `rETH`?",
                                 "description": "The conversion rate between `ETH` and `rETH` might change over time based on the rewards accrued from staking. Ensure this dynamic is properly captured.",
                                 "remediation": "Integrate accurate conversion mechanisms that consider the ever-changing staking rewards when converting between `ETH` and `rETH`.",
@@ -2304,7 +2304,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Integrations-LSD-rETH-1",
+                                "id": "SOL-Integrations-LSD-rETH-5",
                                 "question": "Does the application account for potential penalties or slashes?",
                                 "description": "Validators on the Ethereum 2.0 Beacon Chain can be penalized or slashed for misbehavior. This can affect the value of `rETH`.",
                                 "remediation": "Implement mechanisms to account for potential penalties or slashes that can impact the value of `rETH`.",
@@ -2312,7 +2312,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Integrations-LSD-rETH-2",
+                                "id": "SOL-Integrations-LSD-rETH-1",
                                 "question": "How does the system manage rewards accrued from staking?",
                                 "description": "Staking on the Ethereum 2.0 Beacon Chain accrues rewards. The system should account for these rewards when dealing with `rETH`.",
                                 "remediation": "Ensure proper distribution or accumulation of rewards in the system's `rETH` management.",
@@ -2320,7 +2320,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Integrations-LSD-rETH-3",
+                                "id": "SOL-Integrations-LSD-rETH-2",
                                 "question": "Does the application handle potential reverts in the `burn()` function when there's insufficient ether in the `RocketDepositPool`?",
                                 "description": "If there's not enough ether in the `RocketDepositPool` contract, the `burn()` function can fail. It's important for the system to handle these failures gracefully.",
                                 "remediation": "Ensure there's a mechanism to either prevent calls to `burn()` when there's insufficient ether or handle the revert gracefully, informing the user appropriately.",
@@ -2328,7 +2328,7 @@
                                 "tags": []
                             },
                             {
-                                "id": "SOL-Integrations-LSD-rETH-4",
+                                "id": "SOL-Integrations-LSD-rETH-3",
                                 "question": "What measures are in place to counteract potential consensus attacks on RPL nodes?",
                                 "description": "There's a risk of consensus attacks on RPL nodes where malicious nodes may submit incorrect exchange rate data, leading to discrepancies.",
                                 "remediation": "Implement a system in place to quickly rectify incorrect data submissions by nodes.",
@@ -2364,18 +2364,18 @@
                         "description": "",
                         "data": [
                             {
-                                "id": "SOL-Integrations-LSD-sfrxETH-1",
-                                "question": "Is the stability of the `sfrxETH`/`ETH` rate guaranteed or can it decrease in the future?",
-                                "description": "While the `sfrxETH`/`ETH` rate might be stable now, changes in the future could impact users and stakeholders, especially if they're not forewarned.",
-                                "remediation": "Provide clear documentation and alerts about potential changes to the `sfrxETH`/`ETH` rate. Ensure users are informed well in advance about any planned changes that could affect the rate.",
-                                "references": [],
-                                "tags": []
-                            },
-                            {
                                 "id": "SOL-Integrations-LSD-sfrxETH-2",
                                 "question": "How does the system handle potential detachment of `sfrxETH` from `frxETH` during reward transfers?",
                                 "description": "If `sfrxETH` detaches from `frxETH` during reward transfers, it could cause discrepancies in expected and actual values, especially if these transfers are controlled by a centralized entity like the Frax team's multi-sig contract.",
                                 "remediation": "Ensure there's transparency around the actions of the Frax team's multi-sig contract. Consider mechanisms to alert users or stakeholders about discrepancies between `sfrxETH` and `frxETH`.",
+                                "references": [],
+                                "tags": []
+                            },
+                            {
+                                "id": "SOL-Integrations-LSD-sfrxETH-1",
+                                "question": "Is the stability of the `sfrxETH`/`ETH` rate guaranteed or can it decrease in the future?",
+                                "description": "While the `sfrxETH`/`ETH` rate might be stable now, changes in the future could impact users and stakeholders, especially if they're not forewarned.",
+                                "remediation": "Provide clear documentation and alerts about potential changes to the `sfrxETH`/`ETH` rate. Ensure users are informed well in advance about any planned changes that could affect the rate.",
                                 "references": [],
                                 "tags": []
                             }
@@ -2398,7 +2398,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-LayerZero-5",
+                        "id": "SOL-Integrations-LayerZero-2",
                         "question": "Is gas estimated accurately for cross-chain messages?",
                         "description": "Inaccurate gas estimation can result in cross-chain message failures.",
                         "remediation": "Implement mechanisms to estimate gas accurately.",
@@ -2406,7 +2406,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-LayerZero-6",
+                        "id": "SOL-Integrations-LayerZero-3",
                         "question": "Does the `_debitFrom` function in ONFT properly validate token ownership and transfer permissions?",
                         "description": "It's crucial that the `_debitFrom` function verifies whether the specified owner is the actual owner of the tokenId and if the sender has the correct permissions to transfer the token.",
                         "remediation": "Ensure thorough checks and validations are performed in the `_debitFrom` function to maintain token security.",
@@ -2416,7 +2416,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-LayerZero-7",
+                        "id": "SOL-Integrations-LayerZero-4",
                         "question": "Is the `_lzSend` function correctly utilized when inheriting LzApp?",
                         "description": "When inheriting LzApp, direct calls to `lzEndpoint.send` can introduce vulnerabilities. Using `_lzSend` is the recommended approach.",
                         "remediation": "Ensure that the `_lzSend` function is used instead of making direct calls to `lzEndpoint.send`.",
@@ -2424,7 +2424,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-LayerZero-2",
+                        "id": "SOL-Integrations-LayerZero-5",
                         "question": "Is the `ILayerZeroUserApplicationConfig` interface correctly implemented?",
                         "description": "The User Application should include the `forceResumeReceive` function to handle unexpected scenarios and unblock the message queue when needed.",
                         "remediation": "Implement the `ILayerZeroUserApplicationConfig` interface and ensure that the `forceResumeReceive` function is present and functional.",
@@ -2432,7 +2432,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-LayerZero-3",
+                        "id": "SOL-Integrations-LayerZero-6",
                         "question": "Are default contracts used?",
                         "description": "Default configuration contracts are upgradeable by the LayerZero team.",
                         "remediation": "Configure the applications uniquely and avoid using default settings.",
@@ -2440,7 +2440,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-LayerZero-4",
+                        "id": "SOL-Integrations-LayerZero-7",
                         "question": "Is the correct number of confirmations chosen for the chain?",
                         "description": "Choosing an inappropriate number of confirmations can introduce risks, especially considering past reorg events on the chain.",
                         "remediation": "Evaluate the chain's history and potential vulnerabilities to determine the optimal number of confirmations.",
@@ -2574,7 +2574,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-AC-3",
+                        "id": "SOL-Integrations-AC-8",
                         "question": "What happens if the protocol is paused?",
                         "description": "If the AAVE protocol is paused, the protocol can not interact with it.",
                         "remediation": "Ensure the protocol behaves as expected when the AAVE protocol is paused.",
@@ -2582,7 +2582,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-AC-4",
+                        "id": "SOL-Integrations-AC-2",
                         "question": "What happens if the pool becomes deprecated?",
                         "description": "Pools can be deprecated.",
                         "remediation": "Ensure the protocol behaves as expected when the Pools are paused.",
@@ -2590,7 +2590,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-AC-9",
+                        "id": "SOL-Integrations-AC-6",
                         "question": "What happens if assets you lend/borrow are within the same eMode category?",
                         "description": "Lending and borrowing assets within the same eMode category might have rules or limitations.",
                         "remediation": "Ensure the protocol behaves as expected when interacting with assets in the same eMode category.",
@@ -2598,7 +2598,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-AC-5",
+                        "id": "SOL-Integrations-AC-3",
                         "question": "Do flash loans on Aave inflate the pool index?",
                         "description": "Flash loans can influence the pool index (a maximum of 180 flashloans can be performed within a block).",
                         "remediation": "Implement mechanisms to manage the effects of flash loans on the pool index.",
@@ -2606,7 +2606,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-AC-6",
+                        "id": "SOL-Integrations-AC-4",
                         "question": "Does the protocol properly implement AAVE/COMP reward claims?",
                         "description": "Misimplementation of reward claims can lead to users not receiving their correct rewards.",
                         "remediation": "Ensure a proper and tested implementation of AAVE/COMP reward claims.",
@@ -2614,7 +2614,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-AC-7",
+                        "id": "SOL-Integrations-AC-9",
                         "question": "Does the protocol use cETH token?",
                         "description": "The absence of the `underlying()` function in the cETH token contract can cause integration issues.",
                         "remediation": "Double check the protocol works as expected when integrating cETH token.",
@@ -2622,7 +2622,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-AC-2",
+                        "id": "SOL-Integrations-AC-7",
                         "question": "Does borrowing an AAVE siloed asset restrict borrowing other assets?",
                         "description": "Borrowing a siloed asset on Aave will prohibit users from borrowing other assets.",
                         "remediation": "Make use of `getSiloedBorrowing(address asset)` to prevent unexpected problems.",
@@ -2632,7 +2632,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-AC-8",
+                        "id": "SOL-Integrations-AC-5",
                         "question": "On AAVE, what happens if a user reaches the maximum debt on an isolated asset?",
                         "description": "Reaching the maximum debt on an isolated asset can result in denial-of-service or other limitations on user actions.",
                         "remediation": "Ensure that the protocol works as expected when a user reaches the maximum debt.",
@@ -2656,7 +2656,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-Balancer-2",
+                        "id": "SOL-Integrations-Balancer-3",
                         "question": "Does the protcol use Balancer's Oracle? (getTimeWeightedAverage)",
                         "description": "The price will only be updated whenever a transaction (e.g. swap) within the Balancer pool is triggered. Due to the lack of updates, the price provided by Balancer Oracle will not reflect the true value of the assets.",
                         "remediation": "Do not use the Balancer's oracle for any pricing.",
@@ -2666,7 +2666,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Integrations-Balancer-3",
+                        "id": "SOL-Integrations-Balancer-2",
                         "question": "Does the protcol use Balancer's Boosted Pool?",
                         "description": "Balancer's Boosted Pool uses Phantom BPT where all pool tokens are minted at the time of pool creation and are held by the pool itself. Therefore, virtualSupply should be used instead of totalSupply to determine the amount of BPT supply in circulation.",
                         "remediation": "Ensure the protocol uses the correct function to get the total BPT supply in circulation.",
@@ -2702,7 +2702,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-McCc-12",
+                "id": "SOL-McCc-10",
                 "question": "Is block production consistency ensured?",
                 "description": "Inconsistent block production can lead to unexpected application behaviors.",
                 "remediation": "Develop with the assumption that block production may not always be consistent.",
@@ -2710,7 +2710,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-McCc-2",
+                "id": "SOL-McCc-12",
                 "question": "Is `PUSH0` opcode supported for Solidity version `>=0.8.20`?",
                 "description": "`PUSH0` might not be supported on all chains, leading to potential incompatibility issues.",
                 "remediation": "Ensure if `PUSH0` is supported in the target chain.",
@@ -2720,7 +2720,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-McCc-3",
+                "id": "SOL-McCc-11",
                 "question": "Are the EVM opcodes and operations used by the protocol compatible across all targeted chains?",
                 "description": "Incompatibility can arise when the protocol uses EVM operations not supported on certain chains.",
                 "remediation": "Review and ensure compatibility for chains like Arbitrum and Optimism.",
@@ -2731,7 +2731,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-McCc-4",
+                "id": "SOL-McCc-2",
                 "question": "Does the expected behavior of `tx.origin` and `msg.sender` remain consistent across all deployment chains?",
                 "description": "Different chains might interpret these values differently, leading to unexpected behaviors.",
                 "remediation": "Test and verify the behavior on all targeted chains.",
@@ -2741,7 +2741,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-McCc-5",
+                "id": "SOL-McCc-3",
                 "question": "Is there any possibility of exploiting low gas fees to execute many transactions?",
                 "description": "Some attacks become viable with low gas costs or when a large number of transactions can be processed.",
                 "remediation": "Evaluate and mitigate potential attack vectors associated with gas fees.",
@@ -2751,7 +2751,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-McCc-6",
+                "id": "SOL-McCc-4",
                 "question": "Is there consistency in ERC20 decimals across chains?",
                 "description": "Decimals in ERC20 tokens can differ across chains.",
                 "remediation": "Ensure consistent ERC20 decimals or implement chain-specific adjustments.",
@@ -2761,7 +2761,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-McCc-7",
+                "id": "SOL-McCc-5",
                 "question": "Have contract upgradability implications been evaluated on different chains?",
                 "description": "Contracts may have different upgradability properties depending on the chain, like USDT being upgradable on Polygon but not on Ethereum.",
                 "remediation": "Verify and document upgradability characteristics for each chain.",
@@ -2769,7 +2769,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-McCc-8",
+                "id": "SOL-McCc-6",
                 "question": "Have cross-chain messaging implementations been thoroughly reviewed for permissions and functionality?",
                 "description": "Cross-chain messaging requires robust security checks to ensure the correct permissions and intended functionality.",
                 "remediation": "Double check the access control over cross-chain messaging components.",
@@ -2777,7 +2777,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-McCc-9",
+                "id": "SOL-McCc-7",
                 "question": "Is there a whitelist of compatible chains?",
                 "description": "Allowing messages from an unsupported chain can lead to unpredictable results.",
                 "remediation": "Implement a whitelist to prevent messages from unsupported chains.",
@@ -2785,7 +2785,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-McCc-10",
+                "id": "SOL-McCc-8",
                 "question": "Have contracts been checked for compatibility when deployed to the zkSync Era?",
                 "description": "zkSync Era might have specific requirements or differences when compared to standard Ethereum deployments.",
                 "remediation": "Review and ensure compatibility before deploying contracts to zkSync Era.",
@@ -2795,7 +2795,7 @@
                 "tags": []
             },
             {
-                "id": "SOL-McCc-11",
+                "id": "SOL-McCc-9",
                 "question": "Has the protocol been checked for the target chain differences?",
                 "description": "Understanding the differences between chains is vital for ensuring compatibility and preventing unexpected behaviors.",
                 "remediation": "Regularly check for chain differences and update the protocol accordingly.",
@@ -2962,7 +2962,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Token-F:E-12",
+                        "id": "SOL-Token-F:E-11",
                         "question": "What happens on zero amount transfer?",
                         "description": "Some tokens revert on transfer of zero amount and can cause issues in certain integrations and operations.",
                         "remediation": "Transfer only when the amount is positive.",
@@ -2970,7 +2970,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Token-F:E-13",
+                        "id": "SOL-Token-F:E-12",
                         "question": "Is the token an ERC2612 implementation?",
                         "description": "Missing `DOMAIN_SEPARATOR()` can lead to vulnerabilities in the ERC2612 permit functionality.",
                         "remediation": "Ensure complete and correct implementation of ERC2612, including the `DOMAIN_SEPARATOR()` function.",
@@ -2978,7 +2978,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Token-F:E-14",
+                        "id": "SOL-Token-F:E-13",
                         "question": "Can the token be sent to any address?",
                         "description": "Certain addresses might be blocked or restricted to receive tokens (e.g. LUSD).",
                         "remediation": "Ensure the receiver blacklisting does not affect the protocol's functionality.",
@@ -2986,7 +2986,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Token-F:E-15",
+                        "id": "SOL-Token-F:E-14",
                         "question": "Is there a max approval used?",
                         "description": "Some tokens don't support approve `type(uint256).max` amount and revert.",
                         "remediation": "Avoid approval of `type(uint256).max`.",
@@ -2996,7 +2996,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Token-F:E-16",
+                        "id": "SOL-Token-F:E-15",
                         "question": "Can the token be paused?",
                         "description": "Some ERC20 tokens can be paused by the contract owner.",
                         "remediation": "Ensur the protocol is not affected when the token is paused.",
@@ -3004,7 +3004,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Token-F:E-11",
+                        "id": "SOL-Token-F:E-16",
                         "question": "Is the decrease allowance feature of transferFrom() handled correctly when the sender is the caller?",
                         "description": "Allowance should not be decreased in a transferFrom() call if the sender is the same as the caller, to prevent incorrect balance and allowance tracking.",
                         "remediation": "Ensure that the smart contract logic maintains correct allowance levels when transferFrom() involves the token owner themselves.",
@@ -3028,7 +3028,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Token-Nf:E1-2",
+                        "id": "SOL-Token-Nf:E1-8",
                         "question": "Is the contract safe from reentrancy attack?",
                         "description": "By standard, the token receiver contracts implement onERC721Received and onERC1155Received and this can potentially be a source of reentrancy attacks if not correctly handled.",
                         "remediation": "Double check the potential reentrancy attack.",
@@ -3036,7 +3036,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Token-Nf:E1-3",
+                        "id": "SOL-Token-Nf:E1-2",
                         "question": "Is the OpenZeppelin implementation of ERC721 and ERC1155 safeguarded against reentrancy attacks, especially in the `safeTransferFrom` functions?",
                         "description": "The `safeTransferFrom` functions in OpenZeppelin's ERC721 and ERC1155 can expose the contract to reentrancy attacks due to external calls to user addresses.",
                         "remediation": "Use the checks-effects-interactions pattern and implement reentrancy guards to prevent potential reentrancy attacks when making external calls.",
@@ -3044,7 +3044,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Token-Nf:E1-4",
+                        "id": "SOL-Token-Nf:E1-3",
                         "question": "Is it possible to steal NFT abusing his approval?",
                         "description": "Most of the time the `from` parameter of `transferFrom()` should be `msg.sender`. Otherwise an attacker can take advantage of other user's appovals and steal.",
                         "remediation": "Ensure that the contract verifies the `msg.sender` is actually the owner.",
@@ -3052,7 +3052,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Token-Nf:E1-5",
+                        "id": "SOL-Token-Nf:E1-4",
                         "question": "Does the ERC721/1155 contract correctly implement supportsInterface?",
                         "description": "Contracts must properly implement the supportsInterface function to ensure they comply with ERC721/1155 standards and interoperate with other contracts correctly.",
                         "remediation": "Implement the supportsInterface function to return true for ERC721 and ERC1155 token types, ensuring accurate reporting of supported features.",
@@ -3062,7 +3062,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Token-Nf:E1-6",
+                        "id": "SOL-Token-Nf:E1-5",
                         "question": "Can the contract support both ERC721 and ERC1155 standards?",
                         "description": "To facilitate broader compatibility and usage in various applications, contracts may need to support both ERC721 and ERC1155 token standards.",
                         "remediation": "Use the supportsInterface method to check for and support interfaces of both ERC1155 and ERC721 within the same contract.",
@@ -3072,7 +3072,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Token-Nf:E1-7",
+                        "id": "SOL-Token-Nf:E1-6",
                         "question": "What happens to the airdrops that are engaged to specific NFT?",
                         "description": "For many NFT collections, a kind of privilege is provided in various ways, e.g. airdrop. The NFT owner must be able to claim the benefits while they lock in protocols.",
                         "remediation": "Ensure the NFT holders can claim all benefits.",
@@ -3082,7 +3082,7 @@
                         "tags": []
                     },
                     {
-                        "id": "SOL-Token-Nf:E1-8",
+                        "id": "SOL-Token-Nf:E1-7",
                         "question": "How is the approval/transfer handled for CryptoPunks collection?",
                         "description": "CryptoPunks collections that do not support the `transferFrom()` function can present risks. The `offerPunkForSaleToAddress()` function in particular can be susceptible to front-running attacks, which can compromise the ownership and security of the token.",
                         "remediation": "Ensure validation is done properly to prevent malicious actors claiming the ownership.",
